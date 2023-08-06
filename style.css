@@ -1,0 +1,245 @@
+
+:root{
+    --head-color:hsla(0, 0%, 13%, 1);
+    --dark-blue:hsla(228, 69%, 13%, 1);
+    --blue:hsla(228, 69%, 20%, 1);
+
+    --content-color: hsla(0, 0%, 13%, 1);
+    --date-color:hsla(0, 2%, 44%, 1);
+    --white:hsla(0, 0%, 100%, 1);
+}
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background:var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: center;
+    padding: 0.8rem;
+    
+}
+main{
+   max-inline-size: 358px;
+   inline-size:100%;
+}
+.shadow-bg{
+    position: absolute;
+    bottom:0;
+    left:0;
+    right: 0;
+    top:0;
+    inline-size:100%;
+    block-size:100%;
+    background:black;
+    opacity:0.6;
+}
+h1{
+    font-size:24px;
+    line-height: 24px;
+    font-weight: 700;
+    margin-block: 1.7rem;
+}
+
+.Add-new-note{
+    background-color: var(--dark-blue);
+    font-size:16px;
+    line-height: 16px;
+    display: inline-block;
+    inline-size: 100%;
+    text-align: center;
+    text-decoration: none;
+    padding: 15px 24px;
+    color: var(--white);
+    border-radius: 25px;
+    margin-block-end: 1.5rem; 
+}
+
+.article-section{
+    max-inline-size: 358px;
+    block-size: 142px;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-block-end: 1rem; 
+}
+.note-content{
+    font-size: 14px;
+    line-height: 20px;
+    font-weight:400;
+    margin-block-end: 1.5rem;
+}
+.date-btn-flex{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-flex{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+.date-posted{
+    font-size:12px;
+    line-height: 12.99px;
+}
+.update-buttons{
+    border:none;
+    background:none;
+}
+
+.add-note-section{
+    position:fixed;
+    top:30%;
+    background-color:var(--white);
+    padding:1rem;
+    border-radius: 1rem;
+    justify-content:center;
+    align-items: center;
+    flex-direction: column;
+    max-inline-size: 350px;  
+}
+
+.thank-you-section{
+    display:block;
+    padding-inline:4rem;
+    padding-block-end: 2rem;
+
+}
+.x-button:hover svg rect{
+    fill:red;
+}
+.form-flex{
+    margin-block: 1rem;
+    inline-size: 310px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+.add-note-heading{
+    font-size: 18px;
+    line-height: 24px;
+    color: var(--head-color);
+}
+textarea{
+    resize: none;
+    padding: 0.7rem;
+    display: block;
+    inline-size: 310px;
+    block-size: 112px;
+    border-radius: 10px;
+}
+textarea[type="placeholder"]{
+    font-style: italic;  
+}
+.submit-note{
+    padding: 15px 24px;
+    background:var(--dark-blue);
+    border-radius: 20px;
+    color: var(--white);
+    margin-block-start: 1rem;
+    inline-size: 40%;
+    margin-inline-start:60%;
+    border:none;
+    white-space: nowrap;
+}
+
+/* buttons effect states */
+.btn-state{
+    transition-property: transform transform;
+    transition-duration: 0.2s 0;
+    transition-timing-function: linear;
+}
+.btn-state:active{
+    transform: translateY(10%);
+}
+.btn-state:hover{
+    background: hsla(228, 69%, 20%, 1);
+}
+.btn-state:focus{
+    border: 2px solid lightseagreen;
+}
+.btn-state:disabled{
+    background: hsla(228, 9%, 63%, 1);
+
+}
+
+@media only screen and (min-width:737px){
+    main{
+        padding: 1rem;
+        max-inline-size:100%;
+    }
+    header{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content:space-between;
+        align-items: center;
+        margin-block-end: 0.5rem;
+    }
+    .note-content{
+        line-height: 24px;
+    }
+    .shadow-bg{
+        block-size: 100%;
+    }
+    
+    .Add-new-note{
+        inline-size: 30vw;
+        margin: 0;
+        white-space: nowrap;
+    }
+    
+    .flex-section-div{
+        display: inline-flex;
+        width: fit-content;
+        justify-content: flex-start;
+        align-items: stretch;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap:1rem;
+    }
+    section{
+        margin-inline: auto;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .article-section{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+
+        inline-size: 235px;
+        block-size: 235px;
+    }
+    
+}
+@media only screen and (min-width:1312px){
+    .article-section{
+        inline-size: 316px;
+        block-size: 316px;
+    }
+    .Add-new-note{
+        inline-size: 15vw;
+       
+    }
+    .note-content{
+        font-size: 16px;
+    }
+    
+}
+
+
+/* add content form */
