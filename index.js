@@ -1,49 +1,45 @@
-"use strict";
-document.body.onload = loadPage;
-// onpage load fetch all data and display
-async function loadPage() {
+document.addEventListener("DOMContentLoaded", loadPage);
+
+function loadPage() {
   const url = "https://64b6b8aadf0839c97e16081a.mockapi.io/tasks";
-  const notes = await getAllNotes(url);
-  displayArticle(notes);
+  getAllNotes(url)
+    .then(notes => {
+      displayArticle(notes);
+    })
+    .catch(error => {
+      console.error("Error loading notes:", error);
+    });
+
+  const linkTag = document.getElementById("link-to-add-form");
+  linkTag.addEventListener("click", openAddNoteForm);
 }
 
-const displayFormComponent = document.getElementById("add-note-form");
-// const showFormInput = document.getElementById("link-to-add-form");
-const darkBg = document.getElementById("opacity-bg");
-
-// show form input to add new note
-let section, opacityBg;
-
-const linkTag = document.getElementById("link-to-add-form");
-linkTag.addEventListener("click", function (event) {
+function openAddNoteForm(event) {
   event.preventDefault();
   createFormInput("Add note");
-});
-function createFormInput(element) {
-  opacityBg = document.createElement("div");
+}
+
+function createFormInput(formType) {
+  const opacityBg = document.createElement("div");
   opacityBg.classList.add("shadow-bg");
 
-  section = document.createElement("section");
+  const section = document.createElement("section");
   section.setAttribute("id", "add-note-form");
   section.setAttribute("class", "add-note-section");
-  const editFormSection =
-    element == "Add note"
-      ? manupilateForm("Add a new note")
-      : manupilateForm("Update note");
 
-  const formInputs =
-    element == "Add note"
-      ? formInputElement("Add note")
-      : formInputElement("Update note");
+  const formHeading = formType === "Add note" ? "Add a new note" : "Update note";
+  const editFormSection = createFormSection(formHeading);
+  const formInputs = createFormInputElement(formType);
 
   section.append(editFormSection, formInputs);
   document.body.style.overflow = "hidden";
   document.body.append(opacityBg, section);
 }
 
-function manupilateForm(formHeading) {
+function createFormSection(formHeading) {
   const division = document.createElement("div");
   division.setAttribute("class", "form-flex");
+
   const p = document.createElement("p");
   p.textContent = formHeading;
   p.setAttribute("id", "add-note-heading");
@@ -52,78 +48,52 @@ function manupilateForm(formHeading) {
   cancelFormBtn.setAttribute("id", "cancel-form");
   cancelFormBtn.setAttribute("class", "x-button update-buttons");
   cancelFormBtn.onclick = cancelFormInput;
-  cancelFormBtn.innerHTML = ` <svg
-width="28"
-height="28"
-viewBox="0 0 28 28"
-fill="none"
-xmlns="http://www.w3.org/2000/svg"
->
-<rect width="28" height="28" rx="14" fill="white" />
-<path
-  d="M8 20L20 8"
-  stroke="#101840"
-  stroke-width="1.5"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-/>
-<path
-  d="M20 20L8 8"
-  stroke="#101840"
-  stroke-width="1.5"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-/>
-</svg>`;
+  cancelFormBtn.innerHTML = `
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="28" height="28" rx="14" fill="white" />
+      <path d="M8 20L20 8" stroke="#101840" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M20 20L8 8" stroke="#101840" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `;
+
   division.append(p, cancelFormBtn);
   return division;
 }
 
-// cancel form inplementation
-function cancelFormInput() {
-  document.body.removeChild(section);
-  document.body.removeChild(opacityBg);
-  document.body.style.overflow = "visible";
-  // onclicking body, remove thank you note
-  document.body.removeEventListener("click", cancelFormInput);
-}
-
-// create the textarea input form
-
-function formInputElement(submitBtn) {
+function createFormInputElement(submitBtn) {
   const form = document.createElement("form");
   form.setAttribute("id", "note-form");
+
   const textArea = document.createElement("textarea");
   textArea.setAttribute("id", "note");
+
   const button = document.createElement("button");
   button.setAttribute("class", "submit-note btn-state");
   button.setAttribute("type", "submit");
   button.setAttribute("id", "submit");
-
   button.textContent = submitBtn;
+
   form.append(textArea, button);
-  form.onsubmit = submitBtn == "Add note" && postNote;
+
+  if (submitBtn === "Add note") {
+    form.addEventListener("submit", postNote);
+  }
+
   return form;
 }
 
-// post note to Api implemention
-
 function postNote(event) {
   event.preventDefault();
-  let newNote = "";
-
-  const textarea = document.getElementById("note").value;
-  console.log(textarea);
-  newNote = textarea;
-  let noteObject = {
-    content: newNote,
-    date: dateNotePosted(),
-  };
-
-  if (noteObject.content != "" || noteObject.content == undefined) {
+  const textarea = document.getElementById("note");
+  const newNote = textarea.value;
+  
+  if (newNote.trim() !== "") {
     const url = "https://64b6b8aadf0839c97e16081a.mockapi.io/tasks";
-
-    // request object used in fetch api
+    const noteObject = {
+      content: newNote,
+      date: dateNotePosted(),
+    };
+    
     const requestObject = {
       method: "POST",
       headers: {
@@ -131,154 +101,150 @@ function postNote(event) {
       },
       body: JSON.stringify(noteObject),
     };
-    // setting esponse to promise object
-
-    fetch(url, requestObject).then((response) => {
-      if (response.statusText == "Created") {
-        // replace form section with thank you note
-
-        section.replaceChildren(
-          ...successfulAddedNote("Note added successfully")
-        );
-        //remove thank you note
-        response.json().then(function (data) {
-          console.log(data.id);
-          const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${data.id}`;
-          getSigleNote(url).then(function (data) {
-            createNewArticle(data);
-          });
-          document.body.addEventListener("click", cancelFormInput);
-        });
-      }
-    });
+    
+    fetch(url, requestObject)
+      .then(response => response.json())
+      .then(data => {
+        createNewArticle(data);
+        cancelFormInput();
+      })
+      .catch(error => {
+        console.error("Error adding note:", error);
+      });
   }
 }
 
-// onsuccesfull note addition, create thank you card
-function successfulAddedNote(onUpdate) {
-  const image = document.createElement("img");
-  image.setAttribute("src", "./images/Tick 1.svg");
-  const p = document.createElement("p");
-  p.setAttribute("style", "font-weight: 700");
-  p.textContent = onUpdate;
-  return [image, p];
+function dateNotePosted() {
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  
+  const date = new Date();
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
 
-// fetching notes from the API
-async function getAllNotes(url) {
-  const response = await fetch(url);
-  const data = await response.json();
-  return data;
-}
-async function getSigleNote(url) {
-  const res = await fetch(url);
-  const note = await res.json();
-  return note;
+function cancelFormInput() {
+  const section = document.getElementById("add-note-form");
+  const opacityBg = document.querySelector(".shadow-bg");
+  document.body.removeChild(section);
+  document.body.removeChild(opacityBg);
+  document.body.style.overflow = "visible";
 }
 
-// display new note to the screen
+function getAllNotes(url) {
+  return fetch(url)
+    .then(response => response.json())
+    .catch(error => {
+      console.error("Error fetching notes:", error);
+    });
+}
+
 function displayArticle(noteArray) {
   noteArray.forEach(createNewArticle);
 }
 
-//random background colors
-function bgColorPicker() {
-  return Math.floor(Math.random() * 4);
-}
-
-// creating new note function
 function createNewArticle(note) {
   const bgColors = ["#FCF5D2", "#FCD2F8", "#D2FCDE", "#FCD9D2"];
   const article = document.createElement("article");
   article.style.backgroundColor = bgColors[bgColorPicker()];
-  const htmlComponents = `<p id="note-${note.id}" class="note-content">${note.content}</p>
-      <div class="date-btn-flex">
-          <p class="date-posted" id="para-${note.id}">${note.date}</p>
-          <div  class="btn-flex"  >
-              <button class="update-buttons" >
-                  <img src="./images/edit-btn.svg" alt="" srcset="" onClick="updateform(this)" getId="${note.id}">
-              </button>
-              <button class="update-buttons">
-                  <img id="delete-btn" src="./images/delete-btn.svg" alt="" onClick="deleteNote(this)" srcset="" getId="${note.id}">
-              </button>
-          </div>
-      </div>`;
+
+  const htmlComponents = `
+    <p id="note-${note.id}" class="note-content">${note.content}</p>
+    <div class="date-btn-flex">
+      <p class="date-posted" id="para-${note.id}">${note.date}</p>
+      <div class="btn-flex">
+        <button class="update-buttons">
+          <img src="./images/edit-btn.svg" alt="" srcset="" onClick="updateform(this)" getId="${note.id}">
+        </button>
+        <button class="update-buttons">
+          <img id="delete-btn" src="./images/delete-btn.svg" alt="" onClick="deleteNote(this)" srcset="" getId="${note.id}">
+        </button>
+      </div>
+    </div>
+  `;
+
   article.setAttribute("id", `article-${note.id}`);
   article.classList.add("article-section");
   article.innerHTML = htmlComponents;
+
   document.getElementById("article-div").appendChild(article);
 }
 
-// form update notes
-async function updateform(element) {
-  createFormInput("Update note");
-  const textNoteToUpdate = document.getElementById("note");
-  let updateNote = "";
+function bgColorPicker() {
+  return Math.floor(Math.random() * 4);
+}
+function updateform(element) {
   const noteId = element.getAttribute("getId");
-  const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${noteId}`;
-  const { content } = await getSigleNote(url);
-  textNoteToUpdate.value = content;
-  document
-    .getElementById("submit")
-    .addEventListener("click", async function (e) {
-      e.preventDefault();
+  const textNoteToUpdate = document.getElementById("note");
 
-      updateNote = textNoteToUpdate.value;
-      if (updateNote == "") {
-        updateNote = content;
-      }
-      console.log(content);
-      const response = await fetch(url, {
-        method: "PUT",
-        mode: "cors",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          content: updateNote,
-        }),
+  const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${noteId}`;
+  
+  getSigleNote(url)
+    .then(note => {
+      textNoteToUpdate.value = note.content;
+
+      const submitButton = document.getElementById("submit");
+      submitButton.textContent = "Update";
+
+      submitButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        const updatedNote = textNoteToUpdate.value;
+
+        if (updatedNote.trim() !== "") {
+          updateNoteInApi(noteId, updatedNote)
+            .then(() => {
+              const noteContentElement = document.getElementById(`note-${noteId}`);
+              noteContentElement.textContent = updatedNote;
+              cancelFormInput();
+            })
+            .catch(error => {
+              console.error("Error updating note:", error);
+            });
+        }
       });
-      console.log(response);
-      const noteToUpdate = document.getElementById(`note-${noteId}`);
-      if (response.ok == true) {
-        noteToUpdate.innerHTML = updateNote;
-        // add updated note
-        section.replaceChildren(
-          ...successfulAddedNote("Note updated successfully")
-        );
-        // cancel updated note
-        document.body.addEventListener("click", cancelFormInput);
-      }
+    })
+    .catch(error => {
+      console.error("Error fetching note:", error);
     });
 }
 
-// note added succesfully alert
+function deleteNote(element) {
+  const noteId = element.getAttribute("getId");
+  const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${noteId}`;
 
-function dateNotePosted() {
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const date = new Date();
-
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  fetch(url, { method: "DELETE" })
+    .then(response => response.json())
+    .then(data => {
+      const articleElement = document.getElementById(`article-${noteId}`);
+      articleElement.remove();
+    })
+    .catch(error => {
+      console.error("Error deleting note:", error);
+    });
 }
 
-// delete notes implementation
-async function deleteNote(element) {
-  const getId = element.getAttribute("getId");
-  const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${getId}`;
-  const response = await fetch(url, { method: "DELETE", mode: "cors" });
-
-  if (response.statusText === "OK") {
-    const articleId = document.getElementById(`article-${getId}`).remove();
-  }
+function getSigleNote(url) {
+  return fetch(url)
+    .then(response => response.json())
+    .catch(error => {
+      console.error("Error fetching single note:", error);
+    });
 }
+
+function updateNoteInApi(noteId, updatedNote) {
+  const url = `https://64b6b8aadf0839c97e16081a.mockapi.io/tasks/${noteId}`;
+
+  const requestObject = {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      content: updatedNote,
+    }),
+  };
+
+  return fetch(url, requestObject);
+}
+
