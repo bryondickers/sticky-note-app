@@ -196,7 +196,7 @@ function createNewArticle(note) {
           <p class="date-posted" id="para-${note.id}">${note.date}</p>
           <div  class="btn-flex"  >
               <button class="update-buttons" >
-                  <img src="./images/edit-btn.svg" alt="" srcset="" onClick="updateform(this)" getId="${note.id}">
+                  <img src="./images/edit-btn.svg" alt="" srcset="" class="update-form" onClick="updateform(this)" getId="${note.id}">
               </button>
               <button class="update-buttons">
                   <img id="delete-btn" src="./images/delete-btn.svg" alt="" onClick="deleteNote(this)" srcset="" getId="${note.id}">
@@ -208,6 +208,9 @@ function createNewArticle(note) {
   article.innerHTML = htmlComponents;
   document.getElementById("article-div").appendChild(article);
 }
+
+const updateBtns = document.querySelectorAll(".update-form");
+
 
 // form update notes
 async function updateform(element) {
